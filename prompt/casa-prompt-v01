@@ -1,0 +1,50 @@
+https://github.com/freesunshine0316/lab-conv-asa/blob/master/data/duconv_dev.txt
+
+
+Conversational Aspect Sentiment Analysis 
+To  efficiently  model  CASA,  we  decompose  the  task  into  two  subtasks:  (1) sentiment extraction  (SE) and (2) mention  extraction  (ME). 
+
+SE aims to find all sentiment expressions from the last user utterance and determine the polarity of each extracted expression.  
+ME  is  to  extract  the  corresponding  mention  from  the  dialogue history for each sentiment expression.  
+
+你現在要從事的任務是對話面向情緒分析（Conversational Aspect Sentiment Analysis）。
+這個任務分為兩個子任務，(1) 情緒抽取（sentiment extraction）從使用者語句中找出所有情感表達，並確定每個提取出的表達的極性。
+(2) 提及抽取（mention extraction）的目標是從對話歷史中提取出每個情感表達的相應提及。
+每個提及物都用"[x]"包圍，其中x是用於區分不同提及物的變量，值可以是任何小寫英文字母。對於提及x的相應情感表達，則用"[x s]"包圍，其中s∈{−1,0,+1}，表示情感值，+1 為正向，-1 為負向。對於涉及多個提及的任何情感表達（例如x和y），都會考慮所有相應的提及（"[x+y s]"）。
+
+例子: 
+A:一些经典的电影就是那么百看不厌。
+B:你指哪些？
+A:比如阿甘正传。
+
+A:[a 一些经典的电影]就是那么[a 百看不厌 +1]。
+B:你指哪些？
+A:比如[a 阿甘正传]。
+
+請標注以下的對話：
+A: 我最近关注了一位很有魅力的女明星 。
+B: 她 把 你 给 迷住 了 吗 ？
+A: 是 的 ， 她 真 的 把 我迷 的 神魂颠倒。
+B: 她 是 谁 呀 ？
+A: 她 就是莫妮卡 · 贝鲁奇 。
+B: 我 知道 他 ， 是很 美丽。
+A: 所以 她 迷住了我 呀 ! 。
+B: 哦 ， 原来如此 。
+A: 这个演员虽然漂亮 ， 但是代表作不怎么样口碑较差 。
+B: 你说的是哪一部？
+A: 亲吻的人们， 五年前上映 的 。
+B: 口碑 不好 我 就 不看 了 ， 哈哈 。
+
+
+A: 我 最近 关注 了 一位 [a 很 有 魅力 +1] 的 [a 女 明星 ] 。
+B: 她 把 你 给 迷住 了 吗 ？
+A: 是 的 ， 她 真 的 把 我 [a 迷 的 神魂颠倒 +1] 。
+B: 她 是 谁 呀 ？
+A: 她 就是 [a 莫妮卡 · 贝鲁奇 ] 。
+B: 我 知道 他 ， 是 [a 很 美丽 +1] 。
+A: 所以 她 [a 迷住 +1] 了 我 呀 ! 。
+B: 哦 ， 原来如此 。
+A: 这个 演员 虽然 [a 漂亮 +1] ， 但是 [b 代表作 ] [b 不 怎么样 -1] ， [b 口碑 较差 -1] 。
+B: 你 说 的 是 哪 一部 ？
+A: [b 亲吻 的 人们 ] ， 五年前 上映 的 。
+B: 口碑 不好 我 就 不看 了 ， 哈哈 。
