@@ -1,16 +1,17 @@
 import unittest
-from dataset.diaasq.base import BaseDiaAsq
+from dataset.diaasq.base import BaseDiaAsqDataset
 import gc
 from pathlib import Path
 
-class TestBaseDiaAsq(unittest.TestCase):
+class TestBaseDiaAsqDataset(unittest.TestCase):
     def setUp(self):
         self.args = {
             'src': 'en',
-            'split': 'train',
+            'train_split_name': 'train',
+            'test_split_name': 'valid',
             'data_root': 'data/diaasq/dataset'
         }
-        self.base_diaasq = BaseDiaAsq(**self.args)
+        self.base_diaasq = BaseDiaAsqDataset(**self.args)
     def tearDown(self):
         self.args = None
         self.base_diaasq = None
@@ -19,27 +20,24 @@ class TestBaseDiaAsq(unittest.TestCase):
         gc.collect() # Ask YiTing 這樣實際到底做了什麼
 
     def test_determine_path(self):
-        # string-lize
-        base_diaasq_filepath = str(self.base_diaasq.filepath)
-        expected_filepath = str(Path(f'{self.args["data_root"]}/jsons_{self.args["src"]}/{self.args["split"]}.json'))
+        base_diaasq_trainpath = str(self.base_diaasq.train_file_path)
+        expected_trainpath = str(Path(f'{self.args["data_root"]}/jsons_{self.args["src"]}/{self.args["train_split_name"]}.json'))
 
-        self.assertEqual(base_diaasq_filepath, expected_filepath)
+        self.assertEqual(base_diaasq_trainpath, expected_trainpath)
 
     def test_data_example(self):
-        self.base_diaasq.read_json()
-        data = {
-        "doc_id": "0003",
+        self.base_diaasq.read_json(self.base_diaasq.train_file_path)
+        data =  {
+        "doc_id": "0002",
         "sentences": [
-            "Really ? why I use IQOO9 for so many days that I feel very fragrant .",
-            "If you really listen to digital bloggers , you can only buy that kind of cost - effective machine , but does everyone need it ? Does everyone play Yuanshen ?",
-            "Ah , is there still a cost -effective machine for the recent machine ? Is not all the hardware shrinks more than last year , the price rises ? [ laugh haha ] .",
-            "The sub -brand is basically cost - effective ( the pile last year ) .",
-            "9 with DC is definitely fragrant but you try again in summer .",
-            "In summer , 865 , 870 and A13 A14 are all fever [ sweat ] .",
-            "What if the fever ? at least the game experience has stabilized at high frame rate , 90 or even 120 , TM 's 888 and 8gen1 is barely 60Hz , and it 's even hotter than others",
-            "Your IQOO9 scheduling is quite conservative . My colleague 's Xiaomi Mi 12Pro is unhot every day . The manufacturers are conservatively scheduled . When running for a long time , the large nuclear frequency is extremely low [ DOGE ] .",
-            "IQOO9 's heat dissipation stack and Xiaomi Mi 12Pro are not a level at all [ laughs without speaking ] .",
-            "It 's almost okay , the area of the hot plate is almost the same ."
+            "This phone is not very good , but compared to the iPhone , I think it is better than the iPhone except for the processor [ laughs cry ]",
+            "The iPhone is excellent as the processor and iOS , and others have been beaten by Android for many years .",
+            "really . Sales also beat Android . Android manufacturers claim to be high - end and high - end every day , but they are just children in front of Apple .",
+            "Samsung , Xiaomi does not all exceed Apple?Because there are too many Android systems , there is only one iOS . If there is only one Android , what do you think of the result ?",
+            "As you say , I have n't used Xiaomi , so I ca n't comment . But traveling , my friend 's Xiaomi phone never took good photos . Especially when went to Malinghe Waterfall this time , we had to take pictures . Every photo taken by my brother 's Mi 11 was blurry . This experience is also speechless .",
+            "Xiaomi 11 is really not good [ black line ] [ black line ] [ black line ] .",
+            "The parameters overwhelme every year , and the experience is general every year ... that 's all . The phone is yours , who uses it , who knows .",
+            "Even the experience is better than the iPhone . I ca n't stand the backward image system of the iPhone ."
         ],
         "replies": [
             -1,
@@ -48,10 +46,8 @@ class TestBaseDiaAsq(unittest.TestCase):
             2,
             0,
             4,
-            5,
             0,
-            7,
-            8
+            6
         ],
         "speakers": [
             0,
@@ -60,350 +56,305 @@ class TestBaseDiaAsq(unittest.TestCase):
             1,
             3,
             0,
-            4,
-            5,
-            0,
-            6
+            3,
+            0
         ],
         "triplets": [
             [
-                164,
-                165,
-                165,
-                166,
-                167,
-                169,
-                "neg",
-                "IQOO9",
-                "scheduling",
-                "quite conservative"
-            ],
-            [
-                205,
-                206,
-                207,
-                210,
-                215,
-                218,
-                "neg",
-                "IQOO9",
-                "heat dissipation stack",
-                "not a level"
-            ],
-            [
-                205,
-                206,
-                207,
-                210,
-                228,
-                230,
-                "other",
-                "IQOO9",
-                "heat dissipation stack",
-                "almost okay"
-            ],
-            [
-                205,
-                206,
-                232,
-                237,
-                238,
-                239,
-                "other",
-                "IQOO9",
-                "area of the hot plate",
-                "almost"
-            ],
-            [
-                96,
-                97,
-                133,
-                135,
-                136,
-                140,
+                20,
+                21,
+                24,
+                25,
+                17,
+                18,
                 "pos",
-                "9",
-                "game experience",
-                "stabilized at high frame"
+                "iPhone",
+                "processor",
+                "better"
             ],
             [
-                173,
-                176,
-                185,
-                186,
+                30,
+                31,
+                35,
+                36,
+                32,
+                33,
+                "pos",
+                "iPhone",
+                "processor",
+                "excellent"
+            ],
+            [
+                30,
+                31,
+                37,
+                38,
+                32,
+                33,
+                "pos",
+                "iPhone",
+                "iOS",
+                "excellent"
+            ],
+            [
+                30,
+                31,
+                52,
+                53,
+                54,
+                55,
+                "pos",
+                "iPhone",
+                "Sales",
+                "beat"
+            ],
+            [
+                82,
+                83,
+                52,
+                53,
+                88,
+                89,
+                "pos",
+                "Samsung",
+                "Sales",
+                "exceed"
+            ],
+            [
+                84,
+                85,
+                52,
+                53,
+                88,
+                89,
+                "pos",
+                "Xiaomi",
+                "Sales",
+                "exceed"
+            ],
+            [
+                180,
+                182,
+                145,
+                146,
                 184,
-                185,
+                186,
                 "neg",
-                "Xiaomi Mi 12Pro",
-                "scheduled",
-                "conservatively"
+                "Xiaomi 11",
+                "photos",
+                "not good"
             ],
             [
-                212,
-                214,
-                207,
-                210,
-                215,
-                218,
-                "pos",
-                "Mi 12Pro",
-                "heat dissipation stack",
-                "not a level"
-            ],
-            [
-                173,
-                176,
-                195,
-                198,
-                199,
-                201,
+                248,
+                249,
+                244,
+                246,
+                243,
+                244,
                 "neg",
-                "Xiaomi Mi 12Pro",
-                "large nuclear frequency",
-                "extremely low"
+                "iPhone",
+                "image system",
+                "backward"
             ],
             [
-                5,
-                6,
-                -1,
-                -1,
-                13,
-                15,
-                "pos",
-                "IQOO9",
-                "",
-                "very fragrant"
+                236,
+                237,
+                231,
+                232,
+                233,
+                234,
+                "neg",
+                "iPhone",
+                "experience",
+                "better"
             ],
             [
+                169,
+                171,
+                145,
+                146,
+                172,
                 173,
+                "neg",
+                "Mi 11",
+                "photos",
+                "blurry"
+            ],
+            [
+                169,
+                171,
+                175,
                 176,
-                -1,
-                -1,
-                177,
                 178,
-                "pos",
-                "Xiaomi Mi 12Pro",
-                "",
-                "unhot"
-            ],
-            [
-                96,
-                97,
-                -1,
-                -1,
-                101,
-                102,
-                "pos",
-                "9",
-                "",
-                "fragrant"
-            ],
-            [
-                112,
-                113,
-                -1,
-                -1,
-                120,
-                121,
+                179,
                 "neg",
-                "865",
-                "",
-                "fever"
-            ],
-            [
-                114,
-                115,
-                -1,
-                -1,
-                120,
-                121,
-                "neg",
-                "870",
-                "",
-                "fever"
-            ],
-            [
-                116,
-                117,
-                -1,
-                -1,
-                120,
-                121,
-                "neg",
-                "A13",
-                "",
-                "fever"
-            ],
-            [
-                117,
-                118,
-                -1,
-                -1,
-                120,
-                121,
-                "neg",
-                "A14",
-                "",
-                "fever"
+                "Mi 11",
+                "experience",
+                "speechless"
             ]
         ],
         "targets": [
             [
-                5,
-                6,
-                "IQOO9"
+                20,
+                21,
+                "iPhone"
             ],
             [
-                96,
-                97,
-                "9"
+                30,
+                31,
+                "iPhone"
             ],
             [
-                112,
-                113,
-                "865"
+                82,
+                83,
+                "Samsung"
             ],
             [
-                114,
-                115,
-                "870"
+                84,
+                85,
+                "Xiaomi"
             ],
             [
-                116,
-                117,
-                "A13"
+                169,
+                171,
+                "Mi 11"
             ],
             [
-                117,
-                118,
-                "A14"
+                180,
+                182,
+                "Xiaomi 11"
             ],
             [
-                164,
-                165,
-                "IQOO9"
+                236,
+                237,
+                "iPhone"
             ],
             [
-                173,
-                176,
-                "Xiaomi Mi 12Pro"
-            ],
-            [
-                205,
-                206,
-                "IQOO9"
-            ],
-            [
-                212,
-                214,
-                "Mi 12Pro"
+                248,
+                249,
+                "iPhone"
             ]
         ],
         "aspects": [
             [
-                232,
-                237,
-                "area of the hot plate"
-            ],
-            [
                 207,
-                210,
-                "heat dissipation stack"
-            ],
-            [
-                165,
-                166,
-                "scheduling"
-            ],
-            [
-                133,
-                135,
-                "game experience"
-            ],
-            [
-                195,
-                198,
-                "large nuclear frequency"
-            ],
-            [
-                185,
-                186,
-                "scheduled"
-            ]
-        ],
-        "opinions": [
-            [
-                215,
-                218,
-                "not a level",
-                "pos"
-            ],
-            [
-                177,
-                178,
-                "unhot",
-                "pos"
-            ],
-            [
-                228,
-                230,
-                "almost okay",
-                "neu"
-            ],
-            [
-                167,
-                169,
-                "quite conservative",
-                "neg"
-            ],
-            [
-                120,
-                121,
-                "fever",
-                "neg"
-            ],
-            [
-                238,
-                239,
-                "almost",
-                "neu"
-            ],
-            [
-                13,
-                15,
-                "very fragrant",
-                "pos"
-            ],
-            [
-                215,
-                218,
-                "not a level",
-                "neg"
+                208,
+                "experience"
             ],
             [
                 199,
                 201,
-                "extremely low",
-                "neg"
+                "The parameters"
             ],
             [
-                136,
-                140,
-                "stabilized at high frame",
+                52,
+                53,
+                "Sales"
+            ],
+            [
+                231,
+                232,
+                "experience"
+            ],
+            [
+                244,
+                246,
+                "image system"
+            ],
+            [
+                37,
+                38,
+                "iOS"
+            ],
+            [
+                35,
+                36,
+                "processor"
+            ],
+            [
+                24,
+                25,
+                "processor"
+            ],
+            [
+                145,
+                146,
+                "photos"
+            ],
+            [
+                175,
+                176,
+                "experience"
+            ]
+        ],
+        "opinions": [
+            [
+                17,
+                18,
+                "better",
                 "pos"
             ],
             [
-                184,
-                185,
-                "conservatively",
+                209,
+                210,
+                "general",
                 "neg"
             ],
             [
-                101,
-                102,
-                "fragrant",
+                172,
+                173,
+                "blurry",
+                "neg"
+            ],
+            [
+                184,
+                186,
+                "not good",
+                "neg"
+            ],
+            [
+                54,
+                55,
+                "beat",
+                "pos"
+            ],
+            [
+                178,
+                179,
+                "speechless",
+                "neg"
+            ],
+            [
+                201,
+                202,
+                "overwhelme",
+                "pos"
+            ],
+            [
+                233,
+                234,
+                "better",
+                "neg"
+            ],
+            [
+                32,
+                33,
+                "excellent",
+                "pos"
+            ],
+            [
+                243,
+                244,
+                "backward",
+                "neg"
+            ],
+            [
+                88,
+                89,
+                "exceed",
                 "pos"
             ]
         ]
         }
+
         self.assertEqual(self.base_diaasq.data[0], data)
