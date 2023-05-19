@@ -1,0 +1,5 @@
+data_root: 'data/diaasq/dataset'
+train_split_name: 'train'
+test_split_name: 'valid'
+k: 1
+prompt_path: './prompt/experiment/diaasq-fulldiag'
