@@ -21,7 +21,7 @@ class TestFullDiaAsq(unittest.TestCase):
             'data_root': 'data/diaasq/dataset',
             'k': 1, # any
             'seed': 0,
-            'prompt_path': f'./prompt/experiment/diaasq-fulldiag'
+            'prompt_path': f'./prompt/experiment/diaasq-fulldialog'
         }
         self.dataset_en = FullDiaAsqDataset(src='en', **common_args)
         self.dataset_zh = FullDiaAsqDataset(src='zh', **common_args)
