@@ -1,5 +1,12 @@
+# define: &data_root 'data/diaasq/dataset'
+
+
+
 data_root: 'data/diaasq/dataset'
 train_split_name: 'train'
 test_split_name: 'valid'
 k: 1
-prompt_path: './prompt/experiment/diaasq-fulldiag'
+prompt_path: 'prompt/experiment/diaasq-fulldiag'
+meta:
+  train: 'data/diaasq/dataset/metadata/train_docid_2_nspeaker.pkl'
+
