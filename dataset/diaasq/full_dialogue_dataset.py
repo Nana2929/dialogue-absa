@@ -3,25 +3,27 @@ from typing import List, Tuple
 import numpy as np
 import logging
 
-# append project root to sys.path
-import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from dataset.utils import *
 from dataset.diaasq.base import BaseDiaAsqDataset
-
+from dataset.constants import diaasq_instruct_terms as instruct_terms
 # need yaml config to determine
-instruct_terms = {
-    'en': {
-        'input': 'Input: \n',
-        'output': 'Output: \n',
-    },
-    'zh': {
-        'input': '輸入： \n',
-        'output': '輸出： \n',
-    }
-}
 
+def add_speaker_prefix(data: List[Dict]):
+    # check number of speakers
+    speakers = data['speakers']
+    n_speaker = len(set(speakers))
+    sentences = data['sentences'].copy()
+    sp_sent_pairs = zip(speakers, sentences)
+    speaker_list = set()
+    for i, (sp, sent) in enumerate(sp_sent_pairs):
+        sp = number_to_char(sp)
+        speaker_list.add(sp)
+        sent = f'{sp}: {sent}'
+        sentences[i] = sent
+    data_copy = data.copy()
+    del data
+    data_copy['sentences'] = sentences
+    return data_copy, speaker_list
 class FullDiaAsqDataset(BaseDiaAsqDataset):
 
     def __init__(self,
@@ -35,7 +37,6 @@ class FullDiaAsqDataset(BaseDiaAsqDataset):
         super().__init__(src, data_root, train_split_name, test_split_name)
         self.k = k
         self.seed = seed
-        self._determine_path()
         self.data = self.read_json(self.test_filepath)
         self.train_data = self.read_json(self.train_file_path)
         self.prompt_prefix = self._load_instruction(prompt_path)
@@ -96,7 +97,7 @@ class FullDiaAsqDataset(BaseDiaAsqDataset):
         logger.info(f'Legal pool size: {len(legal_pool)}')
         return legal_pool
 
-    def _form_example(self, data: Dict[str, any], with_ans=True):
+    def _form_example(self, data: Dict[str, any], with_ans: bool=True):
         """
         formulate 1 example.
         Parameters
@@ -142,7 +143,7 @@ class FullDiaAsqDataset(BaseDiaAsqDataset):
     def _k_shot(self, k: int) -> List[int]:
         # sample k unique samples from legal pool
         legal_pool = self._find_legal_pool()
-        assert len(legal_pool) >= k
+        assert len(legal_pool) >= k, f'Legal pool size {len(legal_pool)} < k {k}'
         k_shot = np.random.choice(legal_pool, k,
                                   replace=False)  # replace ~= repetition
 
