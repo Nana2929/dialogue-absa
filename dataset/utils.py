@@ -1,7 +1,22 @@
 from typing import List, Dict
 from copy import deepcopy
+import pickle
+import json
 
 
+
+
+def load_pkl(path: str):
+
+    with open(path, 'rb') as f:
+        data = pickle.load(f)
+    return data
+
+def load_json(path: str) -> List[Dict]:
+
+    with open(path, 'r') as f:
+        data = json.load(f)
+    return data
 
 def remove_space(example: List[Dict]):
     _example = deepcopy(example)
@@ -16,20 +31,10 @@ def _remove_space(text):
     text = ''.join(text)
     return text
 
-def add_speaker_prefix(data: List[Dict]):
-    # check number of speakers
-    speakers = data['speakers']
-    n_speaker = len(set(speakers))
-    assert n_speaker <= 26 # a better way is to convert 26 to AA, 27 to AB, etc.
-    sentences = data['sentences'].copy()
-    sp_sent_pairs = zip(speakers, sentences)
-    speaker_list = set()
-    for i, (sp, sent) in enumerate(sp_sent_pairs):
-        sp = chr(ord('@')+int(sp)+1)
-        speaker_list.add(sp)
-        sent = f'{sp}: {sent}'
-        sentences[i] = sent
-    data_copy = data.copy()
-    del data
-    data_copy['sentences'] = sentences
-    return data_copy, speaker_list
+def char_to_number(char: str):
+    assert char < 'Z', 'char must be in [A, Z]'
+    return ord(char) - ord('A')
+
+def number_to_char(number: int):
+    assert number < 26, 'number must be in [0, 25] such that it can be converted to a char'
+    return chr(number + ord('A'))
