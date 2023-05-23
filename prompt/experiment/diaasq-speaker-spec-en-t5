@@ -1,0 +1,6 @@
+Sentiment Analysis
+A sentiment tuple consists of (target term, aspect term, opinion term, sentiment polarity).
+Given a discussion thread associated with a speaker, extract the sentiment tuples that belong to the specified speaker, which means that the "opinion term" of the sentiment tuple is spoken by the speaker.
+The first 3 elements in the tuple are term-extraction tasks, meaning the extracted string must be the substring of one of the sentences.
+Sentiment polarity shall be selected from [pos, neg, other].
+The output of the tuple is wrapped in (), separated by a half-width comma, and the output of the tuple is separated by '\n'.

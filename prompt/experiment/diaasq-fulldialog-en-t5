@@ -1,0 +1,6 @@
+Sentiment Analysis
+A sentiment tuple is formatted as (target, aspect, opinion, polarity)
+Given a discussion thread, output all the sentiment tuples in the discussion thread.
+The first 3 elements are extraction tasks, so that the extracted string must be the substring of one of the sentences.
+The sentiment polarity is chosen from [pos, neg, other].
+Tuples are separated by '\n'.

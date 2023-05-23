@@ -4,7 +4,7 @@ Definition:
 - An aspect term is an opinion target that appears in the given text and is a category under the target term. For example, "battery" in the sentence "The phone battery lasts a long time". When an aspect is an implied expression, mark the aspect term as "null".
 - An opinion term is a word that the opinion holder uses to express his/her feelings about the target. For example, the word "long-lasting" in the example sentence "The phone battery lasts a long time". If the opinion term is an implied expression, mark the comment term as "null".
 - Sentiment polarity describes the emotional orientation towards a particular oriented category or an oriented word, usually positive, negative, and other. Other means that no sentiment exists for the comment, usually meaning that there is no explicit comment word.A sentiment tuple consists of (target term, aspect term, opinion term, sentiment polarity).
-Given a discussion thread, output all the sentiment polarities in the discussion thread.
+Given a discussion thread, output all the sentiment tuples in the discussion thread.
 The first 3 elements are extraction tasks,  so that the extracted string must be the substring of one of the sentences.
 The sentiment polarity is chosen from [pos, neg, other].
 The output of the tuple is wrapped in (), separated by a half-width comma, and the output of the tuple is separated by '\n'.
