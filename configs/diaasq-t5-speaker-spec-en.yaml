@@ -24,6 +24,9 @@ model:
   max_length: 512
   output_dir: 'output/diaasq/t5-en'
 
+tokenizer:
+  truncation_side: 'left' 
+
 trainer:
   push_to_hub: false
   per_device_train_batch_size: 2
