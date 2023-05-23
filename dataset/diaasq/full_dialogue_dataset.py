@@ -2,11 +2,15 @@ import os
 from typing import List, Tuple
 import numpy as np
 import logging
-
+from torch.utils.data import Dataset
 from dataset.utils import *
 from dataset.diaasq.base import BaseDiaAsqDataset
 from dataset.constants import diaasq_instruct_terms as instruct_terms
 # need yaml config to determine
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def add_speaker_prefix(data: List[Dict]):
     # check number of speakers
@@ -24,10 +28,12 @@ def add_speaker_prefix(data: List[Dict]):
     del data
     data_copy['sentences'] = sentences
     return data_copy, speaker_list
+
+
 class FullDiaAsqDataset(BaseDiaAsqDataset):
 
     def __init__(self,
-                 src,
+                 src: str,
                  data_root: os.PathLike,
                  train_split_name: str,
                  test_split_name: str,
@@ -47,16 +53,21 @@ class FullDiaAsqDataset(BaseDiaAsqDataset):
     def __getitem__(self, idx) -> Tuple[any]:
         # test sample
         sample = self.data[idx]
-        defs, examples, test_sample = self._make_prompt(sample, self.k)
+        defs, examples, test_sample, test_label = self._make_prompt(sample, self.k)
 
         # return string, full_sample (original data + answer)
-        return defs + '\n' + examples + '\n' + test_sample, sample
+        # print('in-context')
+        # print(examples)
+        return {
+            'input': defs + '\n' + examples + '\n' + test_sample,
+            'label': test_label,
+            'full_sample': sample
+        }
 
     def _load_instruction(self, path: os.PathLike):
         """
         load instruction
         """
-        assert os.path.exists(path)
         with open(path, 'r') as f:
             prompt_prefix = f.read()
         return prompt_prefix
@@ -73,11 +84,12 @@ class FullDiaAsqDataset(BaseDiaAsqDataset):
         k_shots = self._k_shot(k)
         np.random.shuffle(k_shots)  # order randomize
         ordered_k_shots = [
-            self._form_example(self.train_data[id]) for id in k_shots
+            self._form_example(self.train_data[id], with_ans=True)[0] for id in k_shots
         ]
         ordered_k_shots_string = '\n'.join(ordered_k_shots)
-        test_sample = self._form_example(test_data, with_ans=False)
-        return definitions, ordered_k_shots_string, test_sample
+        test_sample, test_label = self._form_example(test_data, with_ans=False)
+
+        return definitions, ordered_k_shots_string, test_sample, test_label
 
     def _find_legal_pool(self, ) -> List[int]:
         # first check if the attribute exists in this class
@@ -94,10 +106,10 @@ class FullDiaAsqDataset(BaseDiaAsqDataset):
                 legal_pool.append(id)
         self._legal_pool = legal_pool
         # count legal pool
-        logger.info(f'Legal pool size: {len(legal_pool)}')
+        # logger.info(f'Legal pool size: {len(legal_pool)}')
         return legal_pool
 
-    def _form_example(self, data: Dict[str, any], with_ans: bool=True):
+    def _form_example(self, data: Dict[str, any], with_ans: bool = True):
         """
         formulate 1 example.
         Parameters
@@ -113,7 +125,7 @@ class FullDiaAsqDataset(BaseDiaAsqDataset):
         if self.src == 'zh':
             _data = remove_space(data)  # only for zh
 
-        _data, _= add_speaker_prefix(_data)
+        _data, _ = add_speaker_prefix(_data)
         preproc_sentences = _data['sentences']
         quads = _data['triplets']
         quad_string = ''
@@ -128,38 +140,32 @@ class FullDiaAsqDataset(BaseDiaAsqDataset):
             if opn_string == '': opn_string = 'null'
 
             formatter = '(%s,%s,%s,%s)'
-            quad_string += formatter % (target_string, aspect_string,
-                                        opn_string, pol) + '\n'
+            quad_string += formatter % (target_string, aspect_string, opn_string, pol) + '\n'
 
         sent_string = '\n'.join(preproc_sentences)
         interm = self.instruct_terms['input']
         outterm = self.instruct_terms['output']
         if with_ans:
-            return interm + sent_string + '\n\n' + outterm + quad_string
+            return interm + sent_string + '\n\n' + outterm + quad_string, quad_string
         # prompting for answer
-
-        return interm + sent_string + '\n\n' + outterm
+        return interm + sent_string + '\n\n' + outterm, quad_string
 
     def _k_shot(self, k: int) -> List[int]:
         # sample k unique samples from legal pool
         legal_pool = self._find_legal_pool()
-        assert len(legal_pool) >= k, f'Legal pool size {len(legal_pool)} < k {k}'
-        k_shot = np.random.choice(legal_pool, k,
-                                  replace=False)  # replace ~= repetition
+        assert len(legal_pool) >= k, f'Legal pool size: {len(legal_pool)} < k: {k}'
+        k_shot = np.random.choice(legal_pool, k, replace=False)  # replace ~= repetition
 
         return k_shot
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-    # data_root = './data/diaasq/dataset'
-    # train_split_name = 'train'
-    # test_split_name = 'valid'
-    # k = 3
-    # prompt_path = f'./prompt/experiment/diaasq-fulldiag'
-    # dataset = FullDiaAsqDataset('en', data_root, train_split_name,
-    #                             test_split_name, k, 0, prompt_path)
-    # input_string, full_sample = dataset[0]
-    # print(full_sample)
-    # print(input_string)
+# data_root = './data/diaasq/dataset'
+# train_split_name = 'train'
+# test_split_name = 'valid'
+# k = 3
+# prompt_path = f'./prompt/experiment/diaasq-fulldiag'
+# dataset = FullDiaAsqDataset('en', data_root, train_split_name,
+#                             test_split_name, k, 0, prompt_path)
+# input_string, full_sample = dataset[0]
+# print(full_sample)
+# print(input_string)

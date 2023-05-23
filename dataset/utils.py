@@ -3,8 +3,9 @@ from copy import deepcopy
 import pickle
 import json
 
-
-
+def write_json(data: List[Dict], path: str):
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
 
 def load_pkl(path: str):
 
@@ -38,3 +39,36 @@ def char_to_number(char: str):
 def number_to_char(number: int):
     assert number < 26, 'number must be in [0, 25] such that it can be converted to a char'
     return chr(number + ord('A'))
+
+
+
+class SpeakerDiaAsqCollator:
+
+    def __init__(self, tokenizer: any, max_len: int):
+        super().__init__()
+        self.tokenizer = tokenizer
+        self.max_len = max_len
+
+    def __call__(self, examples):
+        inputs = [ex['input'] for ex in examples]
+        labels = [ex['label'] for ex in examples]
+        doc_ids = [ex['doc_id'] for ex in examples]
+
+        tokenized_inputs = self.tokenizer(
+            inputs,
+            padding=True,
+            truncation=True,
+            max_length=self.max_len,
+            return_tensors='pt')
+
+        tokenized_labels = self.tokenizer(
+            labels,
+            padding=True,
+            truncation=True,
+            max_length=self.max_len,
+            return_tensors='pt')
+
+        tokenized_inputs['labels'] = tokenized_labels['input_ids']
+        # tokenized_inputs['doc_ids'] = doc_ids
+
+        return tokenized_inputs
