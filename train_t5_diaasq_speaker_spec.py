@@ -14,14 +14,15 @@ from argparse import ArgumentParser
 from configs.utils import load_config
 from dataset.diaasq.speaker_spec_dataset import SpeakerDiaAsqDataset
 from dataset.utils import SpeakerDiaAsqCollator
-from train.t5_metrics import strict_sentiment_f1
+from train.t5_metrics import calc_sentiment_scores
 
 
 def main(args):
 
     # load yaml
     cfg = load_config(args.config)
-    tokenizer = AutoTokenizer.from_pretrained(cfg.model.model_name)
+    tokenizer = AutoTokenizer.from_pretrained(cfg.model.model_name,
+                    truncation_side = cfg.tokenizer.truncation_side,)
     model = AutoModelForSeq2SeqLM.from_pretrained(cfg.model.model_name)
     in_context_strategy = cfg.dataset.in_context_strategy
 
@@ -62,7 +63,7 @@ def main(args):
         weight_decay=cfg.trainer.weight_decay,
         remove_unused_columns=False,
         logging_steps=cfg.trainer.logging_steps,
-        # report_to="wandb",
+        report_to="wandb",
     )
     data_collator = SpeakerDiaAsqCollator(tokenizer=tokenizer, max_len=cfg.model.max_length)
     trainer = Seq2SeqTrainer(
@@ -72,12 +73,11 @@ def main(args):
         eval_dataset=testset,
         tokenizer=tokenizer,
         data_collator=data_collator,
-        compute_metrics=strict_sentiment_f1,
+        compute_metrics= calc_sentiment_scores(tokenizer = tokenizer),
     )
 
     trainer.train()
     trainer.save_model()
-
 
 if __name__ == '__main__':
     parser = ArgumentParser()
