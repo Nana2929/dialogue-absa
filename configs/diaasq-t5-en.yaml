@@ -1,0 +1,25 @@
+seed: 42
+
+data:
+  data_root: 'data/diaasq/dataset'
+  train_split_name: 'train'
+  test_split_name: 'valid'
+  lang_src : 'en'
+
+proc_data:
+  data_root: 'data/diaasq/t5'
+  train_ic_name: 't5_in_context' # use t5/create_kshot_dataset_split.py
+  t5_train_split_name: 't5_train'
+  test_ic_name: 't5_in_context'  # use the same in-context examples as in training
+  t5_test_split_name: 't5_valid'
+
+dataset:
+  k: 1 # 再多 max length 會爆掉
+  prompt_path: 'prompt/experiment/diaasq-fulldialog-en-t5'
+  max_length: 512
+  metadata:
+    train_d2n_path: 'data/diaasq/dataset/metadata/train_docid_2_nspeaker.pkl'
+    test_d2n_path: 'data/diaasq/dataset/metadata/valid_docid_2_nspeaker.pkl'
+# reference: https://tsmatz.wordpress.com/2022/11/25/huggingface-japanese-summarization/
+# Note : Do not use FP16 precision in mT5 fine-tuning.
+

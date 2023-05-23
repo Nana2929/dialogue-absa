@@ -1,0 +1,47 @@
+# reference: https://tsmatz.wordpress.com/2022/11/25/huggingface-japanese-summarization/
+# Note : Do not use FP16 precision in mT5 fine-tuning.
+seed: 42
+data:
+  data_root: 'data/diaasq/speaker_dataset'
+  train_split_name: 'train'
+  test_split_name: 'valid'
+  lang_src : 'en'
+
+proc_data:
+  data_root: 'data/diaasq/speaker_dataset/proc'
+  train_ic_name: 't5_in_context' # use t5/create_kshot_dataset_split.py
+  t5_train_split_name: 't5_train'
+  test_ic_name: 't5_in_context'  # use the same in-context examples as in training
+  t5_test_split_name: 't5_valid'
+
+dataset:
+  k: 1 # 再多 max length 會爆掉
+  prompt_path: 'prompt/experiment/diaasq-speaker-spec-en-t5'
+  in_context_strategy: None
+
+model:
+  model_name: 'allenai/tk-instruct-base-def-pos'
+  max_length: 512
+  output_dir: 'output/diaasq/t5-en'
+
+trainer:
+  push_to_hub: false
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  epochs: 20
+  weight_decay: 0.01
+  learning_rate: 0.0005
+  lr_scheduler_type: 'linear'
+  warmup_steps: 100
+  optim : 'adamw_hf'
+  generation_max_length: 256
+  save_strategy: 'steps'
+  load_best_model_at_end: true
+  metric_for_best_model: 'loss'
+  logging_steps: 100
+  save_steps: 1000
+
+logger:
+  report_to: 'wandb'
+  run_name: 'diaasq-t5-speaker-spec-en'
+
