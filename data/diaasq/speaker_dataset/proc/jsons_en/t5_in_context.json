@@ -1,0 +1,68 @@
+[
+    {
+        "speaker": "D",
+        "doc_id": "0170",
+        "his_opn_quads": [
+            [
+                319,
+                320,
+                -1,
+                -1,
+                334,
+                335,
+                "pos",
+                "X",
+                "",
+                "smoother"
+            ],
+            [
+                337,
+                339,
+                -1,
+                -1,
+                334,
+                335,
+                "neg",
+                "Mi 10",
+                "",
+                "smoother"
+            ],
+            [
+                348,
+                349,
+                -1,
+                -1,
+                345,
+                347,
+                "other",
+                "Android",
+                "",
+                "no problem"
+            ]
+        ],
+        "his_sent_ids": [
+            5
+        ],
+        "his_sentences": [
+            "The X from 3 years ago , aftre update to the latest 14.2 , it was smoother than the Mi 10 in my hand . It was no problem for Android to ues 3 years?You need to ensure that the Android system can be updated for 3 years ."
+        ],
+        "speakers": [
+            0,
+            1,
+            0,
+            1,
+            2,
+            3,
+            4
+        ],
+        "sentences": [
+            "I 'm really not an apple fan , but the Apple system is not stuck , this is a fact . The Huawei I bought by my family was really good at first , but became slower and slower , and often downloaded the software by itself . However , the Apple 6s bought at the same time can still be used now . Although it is still slower than the new mobile phone , it is much better than the Android system .",
+            "I just replaced Apple with Huawei . Please compare the price if you said it stuck . My friend 's P30 has been bought for more than a year , I tried it before I buy the 40 , let alone the function , and the smoothness is quite good . It 's time to change the concept of the early years",
+            "Check it in a few years , it is not a problem with the mobile phone , it is the system , and the Android system has disadvantages",
+            "Yes , I know what you said . However , the time of transit has moved , and the high - end machines of Android are really different . The system fluency is very stable . I did n't know until I bought it in recent years",
+            "I have bought IP6 , IP7 , iPhone X and Xiaomi 2S , and the Xiaomi 2S of 2013 can still be used . The IP6 of 2014 since the second half of 2015 , the message function can not be opened . The 2016 IP7 has been stuck since 2018 , and I have never updated the system . If Apple wants to be smooth , do not update the system , and only two years can be used . It has no problem with Android for 3 years . MoreoverAndroid price is only Apple 1/2",
+            "The X from 3 years ago , aftre update to the latest 14.2 , it was smoother than the Mi 10 in my hand . It was no problem for Android to ues 3 years?You need to ensure that the Android system can be updated for 3 years .",
+            "I use both , but Huawei is more smooth . Automatic downloading of software is a problem of native system"
+        ]
+    }
+]
