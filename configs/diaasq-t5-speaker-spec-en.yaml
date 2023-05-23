@@ -25,12 +25,12 @@ model:
   output_dir: 'output/diaasq/t5-en'
 
 tokenizer:
-  truncation_side: 'left' 
+  truncation_side: 'left'
 
 trainer:
   push_to_hub: false
   per_device_train_batch_size: 2
-  per_device_eval_batch_size: 4
+  per_device_eval_batch_size: 2
   epochs: 20
   weight_decay: 0.01
   learning_rate: 0.0005
@@ -38,11 +38,11 @@ trainer:
   warmup_steps: 100
   optim : 'adamw_hf'
   generation_max_length: 256
-  save_strategy: 'steps'
+  save_strategy: 'epoch'
   load_best_model_at_end: true
   metric_for_best_model: 'loss'
-  logging_steps: 100
-  save_steps: 1000
+  logging_steps: 200
+
 
 logger:
   report_to: 'wandb'
