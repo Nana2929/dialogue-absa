@@ -15,7 +15,7 @@ proc_data:
   t5_test_split_name: 't5_valid'
 
 dataset:
-  k: 1 # 再多 max length 會爆掉
+  k: 1 # number of in-context examples
   prompt_path: 'prompt/experiment/diaasq-speaker-spec-en-t5'
   in_context_strategy: None
 
@@ -28,8 +28,9 @@ tokenizer:
   truncation_side: 'left'
 
 trainer:
+  gpu_id: "1"  # if training on server 9102, only 1 gpu at a time can be used otherwise it crashes
   push_to_hub: false
-  per_device_train_batch_size: 2
+  per_device_train_batch_size: 4
   per_device_eval_batch_size: 2
   epochs: 20
   weight_decay: 0.01
@@ -37,14 +38,16 @@ trainer:
   lr_scheduler_type: 'linear'
   warmup_steps: 100
   optim : 'adamw_hf'
-  generation_max_length: 256
+  generation_max_length: 128
   save_strategy: 'epoch'
   load_best_model_at_end: true
-  metric_for_best_model: 'loss'
-  logging_steps: 200
+  metric_for_best_model: 'eval_quad_micro_f1'
+  logging_steps: 500
+  save_total_limit: 2 
 
 
 logger:
-  report_to: 'wandb'
-  run_name: 'diaasq-t5-speaker-spec-en'
+  logging_dir: 'logs/diaasq/t5-en'
+  report_to: 'tensorboard'
+  run_name: 'exp'
 
