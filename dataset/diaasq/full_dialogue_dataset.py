@@ -39,8 +39,12 @@ class FullDiaAsqDataset(BaseDiaAsqDataset):
                  test_split_name: str,
                  k: int,
                  seed: int,
-                 prompt_path=os.PathLike):
+                 prompt_path=os.PathLike, *args, **kwargs):
         super().__init__(src, data_root, train_split_name, test_split_name)
+        # warning of unused args/kwargs
+        logger.info('Currently unused/unmatched args/kwargs:')
+        logger.info(f'args: {args}')
+        logger.info(f'kwargs: {kwargs}')
         self.k = k
         self.seed = seed
         self.data = self.read_json(self.test_filepath)
