@@ -27,13 +27,13 @@ class BaseDiaAsqDataset(Dataset):
         self._determine_path()
 
         self.train_data = self.read_json(self.train_file_path)
-        self.data = self.read_json(self.test_filepath)
+        self.data = self.read_json(self.test_file_path)
 
 
     def _determine_path(self):
         data_src_root = Path(f'{self.data_root}/jsons_{self.src}/')
         train_fp, test_fp = data_src_root / f'{self.train_split_name}.json',data_src_root / f'{self.test_split_name}.json'
-        self.train_file_path, self.test_filepath = train_fp, test_fp
+        self.train_file_path, self.test_file_path = train_fp, test_fp
 
     def read_json(self, filepath: os.PathLike = None):
         with open(filepath, 'r') as f:
