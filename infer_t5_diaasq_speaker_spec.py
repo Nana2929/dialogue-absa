@@ -25,7 +25,8 @@ ckpt_dir = cfg.model.output_dir
 model_name = cfg.model.model_name
 ckpt = Path(ckpt_dir) / 'checkpoint-1000'
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name,
+                                          truncation_side = cfg.tokenizer.truncation_side,)
 model = AutoModelForSeq2SeqLM.from_pretrained(ckpt)
 
 # making test loader
@@ -132,7 +133,7 @@ training_args = Seq2SeqTrainingArguments(
     weight_decay=cfg.trainer.weight_decay,
     remove_unused_columns=False,
     logging_steps=cfg.trainer.logging_steps,
-    # report_to="wandb",
+    # report_to="wandb", 
 )
 trainer = Seq2SeqTrainer(
     model=model,

@@ -7,7 +7,8 @@
 @Desc    :   Train t5 with speaker-specific DiaASQ data (due to t5 seq limit = 512, which roughly contains
              definitions, 1 in-context-example, and 1 test example input.
 '''
-
+import os
+from datetime import datetime
 from transformers import (AutoTokenizer, AutoModelForSeq2SeqLM, Seq2SeqTrainingArguments,
                           Seq2SeqTrainer)
 from argparse import ArgumentParser
@@ -21,6 +22,10 @@ def main(args):
 
     # load yaml
     cfg = load_config(args.config)
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"] = cfg.trainer.gpu_id
+
+
     tokenizer = AutoTokenizer.from_pretrained(cfg.model.model_name,
                     truncation_side = cfg.tokenizer.truncation_side,)
     model = AutoModelForSeq2SeqLM.from_pretrained(cfg.model.model_name)
@@ -45,8 +50,12 @@ def main(args):
 
     print('trainset length:', len(trainset))
     print('testset length:', len(testset))
-
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    stamped_logging_dir = os.path.join(cfg.logger.logging_dir, cfg.logger.run_name + '_'+timestamp)
+    print(f'[{cfg.logger.report_to}]', 'logging to:', stamped_logging_dir)
     # https://github.com/kevinscaria/InstructABSA/blob/main/run_model.py#L69
+
+
     training_args = Seq2SeqTrainingArguments(
         output_dir=cfg.model.output_dir,
         do_train=True,
@@ -62,9 +71,15 @@ def main(args):
         num_train_epochs=cfg.trainer.epochs,
         weight_decay=cfg.trainer.weight_decay,
         remove_unused_columns=False,
+        save_total_limit=cfg.trainer.save_total_limit,
         logging_steps=cfg.trainer.logging_steps,
-        report_to="wandb",
+        logging_dir=stamped_logging_dir,
+        report_to=cfg.logger.report_to,
+        run_name=cfg.logger.run_name + '_'+timestamp,
     )
+
+
+
     data_collator = SpeakerDiaAsqCollator(tokenizer=tokenizer, max_len=cfg.model.max_length)
     trainer = Seq2SeqTrainer(
         model=model,
