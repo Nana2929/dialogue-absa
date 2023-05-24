@@ -1,7 +1,7 @@
 # reference: https://tsmatz.wordpress.com/2022/11/25/huggingface-japanese-summarization/
 # Note : Do not use FP16 precision in mT5 fine-tuning.
 seed: 42
-# data:
+data:
 #   data_root: 'data/diaasq/speaker_dataset'
 #   train_split_name: 'train'
 #   test_split_name: 'valid'
@@ -29,7 +29,7 @@ model:
 
 # private keys
 envfile: './envs/.env'
-
+output_dir: './results'
 
 
 
