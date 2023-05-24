@@ -62,7 +62,6 @@ class calc_sentiment_scores:
         target_f1 = self.calc_single_f1(decoded_preds, decoded_labels, idx=0)
         aspect_f1 = self.calc_single_f1(decoded_preds, decoded_labels, idx=1)
         opinion_f1 = self.calc_single_f1(decoded_preds, decoded_labels, idx=2)
-        polaroity_f1 = self.calc_single_f1(decoded_preds, decoded_labels, idx=3)
 
         # pair f1
         pair_ta_f1 = self.calc_pair_f1(decoded_preds, decoded_labels, idx=(0,1))
@@ -75,7 +74,6 @@ class calc_sentiment_scores:
             'target_f1': target_f1,
             'aspect_f1': aspect_f1,
             'opinion_f1': opinion_f1,
-            'polar_f1': polaroity_f1,
             'pair_ta_f1': pair_ta_f1,
             'pair_to_f1': pair_to_f1,
             'pair_ao_f1': pair_ao_f1,
