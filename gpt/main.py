@@ -103,7 +103,6 @@ def main(args):
     # logging info
     logger.info(f'[Model] {cfg.model.model_name}')
     logger.info(f'[Max Tokens] {cfg.model.max_tokens}')
-    logger.info(f'[Url] {cfg.model.url}')
     logger.info(f'[Temperature] {cfg.model.temperature}')
 
 
@@ -130,7 +129,8 @@ def main(args):
             # else success
             response = response.json()
             response['doc_id'] = doc_id
-            current_batch.append()
+            current_batch.append(response)
+            # print(response)
             idx += 1
 
             if idx % args.log_step == 0 or idx == len(testset):
