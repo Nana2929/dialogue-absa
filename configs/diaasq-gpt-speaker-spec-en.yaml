@@ -24,7 +24,7 @@ dataset:
 
 model:
   model_name: 'gpt-3.5-turbo'
-  max_tokens: 256 # t5: generation_max_length: 256 # t5: # max_length: 512
+  max_tokens: 512 # t5: generation_max_length: 128 # t5: # max_length: 512
   temperature: 0
 
 # private keys
