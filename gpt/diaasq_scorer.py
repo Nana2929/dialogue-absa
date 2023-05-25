@@ -10,7 +10,7 @@ from metrics.utils import (calc_single_f1,
                            calc_pair_f1,
                            calc_strict_f1)
 from configs.utils import load_config
-from dataset.utils import load_json
+from dataset.utils import load_json, write_out
 from dataset.diaasq.speaker_spec_dataset import SpeakerDiaAsqDataset
 from dataset.diaasq.full_dialogue_dataset import FullDiaAsqDataset
 
@@ -81,9 +81,35 @@ def main(args):
     gpt_replies = concat_files(result_dir)
     _test_sanity(gpt_replies, testset)
 
+
+    # make output file
+    # test_file_path = Path(cfg.proc_data.data_root) / f'jsons_{cfg.data.lang_src}' / f'{cfg.proc_data.t5_test_split_name}.json'
+    # test_file = load_json(test_file_path)
+    outdir = Path(cfg.output_dir)
+    outfile = outdir / f'{dataset_name}_gpt_eval.{args.suffix}'
+    if args.outfile:
+        outfile = args.outfile+ '.' + args.suffix
+    # doc_id, speaker, sentences, labels, replies
+    outs = []
     gpt_strings = []
     for reply in gpt_replies:
         gpt_strings.append(extract_msg(reply))
+
+    for gpt_string, test_example in zip(gpt_strings, testset): # input, label, doc_id
+        record = {
+            'input_sequence': test_example['input'],
+            'doc_id' : test_example['doc_id'],
+            'speaker': test_example['speaker'],
+            'sentences': test_example['his_sentences'],
+            'labels': test_example['label'],
+            'replies': gpt_string
+        }
+
+
+        outs.append(record)
+    logger.info(f'Writing inference file to {outfile} ...')
+    write_out(data = outs, path = outfile)
+
     gold_strings = [test['label'] for test in testset]
     logger.info(f'Starting evaluation on {cfg.proc_data.t5_test_split_name} ({len(testset)} examples)...')
     # calculate f1 scores
@@ -111,6 +137,8 @@ def main(args):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--cfg', type=str, default='configs/diaasq-gpt-speaker-spec-en.yaml')
+    parser.add_argument('--outfile', type=str, required=False, help = 'full path; inference file stem')
+    parser.add_argument('--suffix', type=str, default = 'csv', required=False, help = 'suffix of the inference file (No dot!), default `csv`. Also supporting `json`')
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
