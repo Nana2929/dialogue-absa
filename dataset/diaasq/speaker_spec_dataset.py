@@ -53,11 +53,12 @@ class SpeakerDiaAsqDataset(BaseDiaAsqDataset):
 
     def __getitem__(self, idx: int) -> Tuple[any]:
         sample = self.data[idx]
-        sample_speaker = sample['speakers']
+        sample_speaker = sample['speaker']
         defs, in_context_examples, test_sample, test_label = self._make_prompt(sample, self.k)
         return {
             'input': defs + '/n' + in_context_examples + '/n' + test_sample,
             'label': test_label,
+            'speaker': sample_speaker,
             'doc_id': sample['doc_id']}
 
     def _load_instruction(self, path: os.PathLike) -> str:
@@ -68,12 +69,12 @@ class SpeakerDiaAsqDataset(BaseDiaAsqDataset):
 
     def _make_prompt(self, sample: Dict[str, any], k: int) -> Tuple[str, str, str, str]:
         formulated_test_sample, test_label = self._form_example(sample, with_ans=False)
-        k_shots = self.k_shot(k)
+        k_shots = self._k_shot(k)
         k_shots_string = '\n'.join(k_shots)
-        prompt = self.prompt_prefix + k_shots_string
-        return prompt, k_shots_string, formulated_test_sample, test_label
 
-    def k_shot(self, k: int) -> List[str]:
+        return  self.prompt_prefix, k_shots_string, formulated_test_sample, test_label
+
+    def _k_shot(self, k: int) -> List[str]:
         assert k <= len(self.in_context_data)
         # reorder
         k_shots = np.random.choice(self.in_context_data, k, replace=False)
