@@ -97,12 +97,14 @@ def main(args):
 
     for gpt_string, test_example in zip(gpt_strings, testset): # input, label, doc_id
         record = {
+
             'input_sequence': test_example['input'],
             'doc_id' : test_example['doc_id'],
             'speaker': test_example['speaker'],
             'sentences': test_example['his_sentences'],
-            'labels': test_example['label'],
-            'replies': gpt_string
+            # align with t5 inference
+            'label': test_example['label'],
+            'pred': gpt_string
         }
 
 
