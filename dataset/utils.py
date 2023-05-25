@@ -2,6 +2,17 @@ from typing import List, Dict
 from copy import deepcopy
 import pickle
 import json
+import os
+import pandas as pd
+
+def write_out(data, path:os.PathLike):
+    suffix = str(path).split('.')[-1]
+    if suffix == 'csv':
+        pd.DataFrame(data).to_csv(path, index=False)
+    elif suffix == 'json':
+        write_json(data, path)
+    else:
+        raise ValueError(f'Unknown suffix {suffix} (Supported: csv and json)')
 
 def write_json(data: List[Dict], path: str):
     with open(path, 'w') as f:
