@@ -8,7 +8,8 @@ import logging
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from metrics.utils import (calc_single_f1,
                            calc_pair_f1,
-                           calc_strict_f1)
+                           calc_strict_f1,
+                            calc_identity_f1)
 from configs.utils import load_config
 from dataset.utils import load_json, write_out
 from dataset.diaasq.speaker_spec_dataset import SpeakerDiaAsqDataset
@@ -21,9 +22,10 @@ type_switch = {
         'speaker': SpeakerDiaAsqDataset,
         'full': FullDiaAsqDataset,
     }
+
 def determine_result_dir(cfg, dataset_name: str) -> os.PathLike:
-    dataset_lang_name = f'{dataset_name}_{cfg.data.lang_src}'
-    result_dir = Path(cfg.output_dir) / dataset_lang_name
+    result_dir_name = f'{dataset_name}_{cfg.data.lang_src}_k={cfg.dataset.k}'
+    result_dir = Path(cfg.output_dir) / result_dir_name
     return result_dir
 
 def concat_files(res_dir: os.PathLike) -> List[Dict]:
@@ -45,15 +47,16 @@ def extract_msg(gpt_reply: Dict):
     return gpt_reply['choices'][0]['message']['content']
 
 def load_testset(cfg: Dict):
-    Dataset = type_switch[cfg.proc_data.type]
+    Dataset = type_switch[cfg.data.type]
     testset = Dataset(src = cfg.data.lang_src,
-                    data_root = cfg.proc_data.data_root,
-                    ic_split_name = cfg.proc_data.test_ic_name,
-                    data_split_name = cfg.proc_data.t5_test_split_name,
+                    data_root = cfg.data.data_root,
+                    ic_split_name = cfg.data.ic_split_name,
+                    data_split_name = cfg.data.data_split_name,
                     k = cfg.dataset.k,
                     seed = cfg.seed,
                     prompt_path = cfg.dataset.prompt_path,
-                    in_context_strategy=cfg.dataset.in_context_strategy)
+                    in_context_strategy = None)
+
     return testset
 
 
@@ -71,13 +74,14 @@ def _test_sanity(gpt_replies: List[Dict], testset: List[Dict]):
 
 def main(args):
     cfg = load_config(args.cfg)
-    # cfg = load_config('configs/diaasq-gpt-speaker-spec-en.yaml')
-
     testset = load_testset(cfg)
     dataset_name = testset.__class__.__name__
 
     result_dir = determine_result_dir(cfg, dataset_name = dataset_name)
-    logger.info(f'Result Dir: {result_dir}')
+    current_file_name = Path(__file__).resolve().stem
+    logger.info(f'=== {current_file_name} ===')
+    logger.info(f'- dataset type: {dataset_name}')
+    logger.info(f'- result dir: {result_dir}')
     gpt_replies = concat_files(result_dir)
     _test_sanity(gpt_replies, testset)
 
@@ -86,8 +90,15 @@ def main(args):
     # test_file_path = Path(cfg.proc_data.data_root) / f'jsons_{cfg.data.lang_src}' / f'{cfg.proc_data.t5_test_split_name}.json'
     # test_file = load_json(test_file_path)
     outdir = Path(cfg.output_dir)
-    outfile = outdir / f'{dataset_name}_gpt_eval.{args.suffix}'
-    if args.outfile:
+    # makedir
+    if not outdir.exists():
+        outdir.mkdir(parents = True)
+    outdir = outdir / (dataset_name + f'_{cfg.data.lang_src}_k={cfg.dataset.k}')
+    outfile = outdir / f'{dataset_name}_gpt_eval_{cfg.dataset.k}shot.{args.suffix}'
+    logger.info(f'Writing inference file to {outfile} ...')
+    # makedir
+    if not outdir.exists():
+        outdir.mkdir(parents = True)
         outfile = args.outfile+ '.' + args.suffix
     # doc_id, speaker, sentences, labels, replies
     outs = []
@@ -96,16 +107,16 @@ def main(args):
         gpt_strings.append(extract_msg(reply))
 
     for gpt_string, test_example in zip(gpt_strings, testset): # input, label, doc_id
+        sentence_col = 'his_sentence' if cfg.data.type == 'speaker' else 'sentences'
         record = {
 
             'input_sequence': test_example['input'],
             'doc_id' : test_example['doc_id'],
-            'speaker': test_example['speaker'],
-            'sentences': test_example['his_sentences'],
-            # align with t5 inference
             'label': test_example['label'],
             'pred': gpt_string
         }
+        if cfg.data.type == 'speaker':
+            record['speaker'] = test_example['speaker']
 
 
         outs.append(record)
@@ -113,7 +124,7 @@ def main(args):
     write_out(data = outs, path = outfile)
 
     gold_strings = [test['label'] for test in testset]
-    logger.info(f'Starting evaluation on {cfg.proc_data.t5_test_split_name} ({len(testset)} examples)...')
+    logger.info(f'Starting evaluation on {cfg.data.data_split_name} ({len(testset)} examples)...')
     # calculate f1 scores
     target_f1 = calc_single_f1(gpt_strings, gold_strings, idx = 0)
     aspect_f1 = calc_single_f1(gpt_strings, gold_strings, idx = 1)
@@ -122,6 +133,7 @@ def main(args):
     pair_to_f1 = calc_pair_f1(gpt_strings, gold_strings, idx = (0,2))
     pair_ao_f1 = calc_pair_f1(gpt_strings, gold_strings, idx = (1,2))
     quad_micro_f1 = calc_strict_f1(gpt_strings, gold_strings)
+    iden_f1 = calc_identity_f1(gpt_strings, gold_strings)
 
     # make
     eval_results = {
@@ -132,6 +144,7 @@ def main(args):
             'pair_to_f1': pair_to_f1,
             'pair_ao_f1': pair_ao_f1,
             'quad_micro_f1': quad_micro_f1,
+            'iden_f1': iden_f1
         }
     pprint(eval_results)
 

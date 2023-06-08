@@ -1,5 +1,8 @@
 import re
 from typing import List, Tuple
+
+# （讨论目标，面向，评论，情绪极度）
+
 def str_2_tuples(string: str):
     pattern = r'\((.*?)\)'
     tuples = re.findall(pattern, string)
@@ -65,6 +68,31 @@ def calc_strict_f1(predicted:List[str], gold: List[str]):
     for pred_line, gold_line in zip(predicted, gold):
         pred_quads = str_2_tuples(pred_line)
         gold_quads = str_2_tuples(gold_line)
+
+        fp += len(set(pred_quads) - set(gold_quads))
+        fn += len(set(gold_quads) - set(pred_quads))
+        tp += len(set(pred_quads) & set(gold_quads))
+    p = tp / (tp + fp + tol)
+    r = tp / (tp + fn + tol)
+    f1 = 2*p*r/(p+r + tol)
+    return f1
+
+def calc_identity_f1(predicted: List[str], gold: List[str]):
+    """https://arxiv.org/abs/2211.05705
+    We thus take the micro F1 and identification F1
+        respectively for measurements, where the micro F1
+        measures the whole quad, including the sentiment
+        polarity. In contrast, identification F1 (Barnes et al.,
+        2021) does not distinguish the polarity."""
+    fp, fn, tp = 0, 0, 0
+    tol = 1e-10
+    pol_idx = 0
+    for pred_line, gold_line in zip(predicted, gold):
+        pred_quads = str_2_tuples(pred_line)
+        gold_quads = str_2_tuples(gold_line)
+        # exclude polarity
+        pred_quads = [quad[:pol_idx] + quad[pol_idx+1:] for quad in pred_quads]
+        gold_quads = [quad[:pol_idx] + quad[pol_idx+1:] for quad in gold_quads]
 
         fp += len(set(pred_quads) - set(gold_quads))
         fn += len(set(gold_quads) - set(pred_quads))

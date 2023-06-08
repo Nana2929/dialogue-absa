@@ -1,0 +1,33 @@
+# reference: https://tsmatz.wordpress.com/2022/11/25/huggingface-japanese-summarization/
+# Note : Do not use FP16 precision in mT5 fine-tuning.
+seed: 42
+data:
+  type: 'full'
+  lang_src : 'en'
+  data_root: 'data/diaasq/dataset'
+  ic_split_name: 'train'
+  data_split_name: 'valid'
+
+dataset:
+  k: 1 # different from zh
+  prompt_path: 'prompt/experiment/diaasq-fulldialog-en'
+  in_context_strategy: None
+
+model:
+  model_name: 'gpt-3.5-turbo'
+  max_tokens: 1024
+  temperature: 0
+
+# private keys
+envfile: './envs/.env'
+
+# output
+output_dir: 'output/diaasq/gpt-full-dialog'
+
+
+
+
+
+
+
+

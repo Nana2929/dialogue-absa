@@ -1,13 +1,10 @@
 # reference: https://tsmatz.wordpress.com/2022/11/25/huggingface-japanese-summarization/
 # Note : Do not use FP16 precision in mT5 fine-tuning.
 seed: 42
-data:
-  data_root: 'data/diaasq/speaker_dataset'
-  train_split_name: 'train'
-  test_split_name: 'valid'
-  lang_src : 'en'
 
-proc_data:
+
+data:
+  lang_src : 'en'
   data_root: 'data/diaasq/speaker_dataset/proc'
   train_ic_name: 't5_in_context' # use t5/create_kshot_dataset_split.py
   t5_train_split_name: 't5_train'
