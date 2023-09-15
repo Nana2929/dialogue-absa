@@ -9,6 +9,7 @@ def str_2_tuples(string: str) -> list[tuple]:
     pattern = r"\((.*?)\)"
     tuples = re.findall(pattern, string)
     tuples = [tuple(t.split(",")) for t in tuples]
+
     for i, t in enumerate(tuples):
         if len(t) < 4:
             # manually add empty string until 4 or
@@ -16,6 +17,7 @@ def str_2_tuples(string: str) -> list[tuple]:
             t += ("",) * (4 - len(t))
         elif len(t) > 4:
             t = t[:4]
+        t = tuple(e.strip() for e in t)
         tuples[i] = t
     return tuples
 
@@ -90,7 +92,7 @@ def calc_strict_f1(predicted: list[str], gold: list[str, tuple]):
     return f1
 
 
-def calc_identity_f1(predicted: list[str], gold: list[str, tuple]):
+def calc_iden_f1(predicted: list[str], gold: list[str, tuple]):
     """https://arxiv.org/abs/2211.05705
     We thus take the micro F1 and identification F1
         respectively for measurements, where the micro F1
